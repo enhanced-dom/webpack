@@ -4,46 +4,49 @@ import HtmlWebpackInlineSourcePlugin from 'html-webpack-inline-source-plugin'
 import { Compilation, Compiler } from 'webpack'
 import { Hooks } from 'html-webpack-plugin'
 import { AsyncSeriesWaterfallHook } from 'tapable'
+import fs from 'fs'
+import path from 'path'
 
 type AsyncSeriesWaterfallHookData<T> = T extends AsyncSeriesWaterfallHook<infer R> ? R : never
 
 HtmlWebpackInlineSourcePlugin.prototype.processTags = function (
   compilation: Compilation,
-  regexStr: string,
-  pluginData: AsyncSeriesWaterfallHookData<Hooks['alterAssetTags']>,
+  pluginData: AsyncSeriesWaterfallHookData<Hooks['afterTemplateExecution']>,
 ) {
   const self = this
 
-  const scripts = []
-  const styles = []
+  const headTags = []
+  const bodyTags = []
 
-  const regex = new RegExp(regexStr)
-  pluginData.assetTags.scripts.forEach(function (tag) {
-    scripts.push(self.processTag(compilation, regex, tag))
+  pluginData.headTags.forEach((tag) => {
+    headTags.push(self.processTag(compilation, self.assetsRegExp, tag))
   })
 
-  pluginData.assetTags.styles.forEach(function (tag) {
-    styles.push(self.processTag(compilation, regex, tag))
+  pluginData.bodyTags.forEach((tag) => {
+    bodyTags.push(self.processTag(compilation, self.assetsRegExp, tag))
   })
 
-  return { ...pluginData, assetTags: { ...pluginData.assetTags, scripts, styles } }
+  return { ...pluginData, headTags, bodyTags }
 }
 
 HtmlWebpackInlineSourcePlugin.prototype.apply = function (compiler: Compiler) {
   const self = this
   self.assetsRegExp = undefined
+  self.faviconPath = undefined
 
   compiler.hooks.compilation.tap('html-webpack-inline-source-plugin', (compilation) => {
-    HtmlWebpackPlugin.getHooks(compilation).alterAssetTags.tapAsync('html-webpack-inline-source-plugin', (htmlPluginData, callback) => {
-      if (!htmlPluginData.plugin.options.inlineSource) {
-        return callback(null, htmlPluginData)
+    HtmlWebpackPlugin.getHooks(compilation).afterTemplateExecution.tapAsync('html-webpack-inline-source-plugin', (htmlPluginData, callback) => {
+      self.assetsRegExp = new RegExp('.(js|css)$')
+      const result = self.processTags(compilation, htmlPluginData) as typeof htmlPluginData
+      const favicon = htmlPluginData.plugin.options.favicon
+      if (!favicon || !fs.existsSync(favicon)) {
+        return callback(null, result)
       }
-
-      const regexStr = htmlPluginData.plugin.options.inlineSource
-      self.assetsRegExp = new RegExp(regexStr)
-
-      const result = self.processTags(compilation, regexStr, htmlPluginData)
-
+      const faviconTag = result.headTags.find(tag => tag.tagName === 'link' && tag.attributes.rel === 'icon')
+      if (faviconTag) {
+        self.faviconPath = faviconTag.attributes.href as string
+        faviconTag.attributes.href = `data:image/x-icon;base64, ${fs.readFileSync(favicon, 'base64')}`
+      }
       callback(null, result)
     })
   })
@@ -51,7 +54,7 @@ HtmlWebpackInlineSourcePlugin.prototype.apply = function (compiler: Compiler) {
   compiler.hooks.emit.tap('html-webpack-inline-source-plugin', (compilation) => {
     if (self.assetsRegExp) {
       Object.keys(compilation.assets).forEach(function (file) {
-        if (file.match(self.assetsRegExp)) {
+        if (file.match(self.assetsRegExp) || file === self.faviconPath?.split(path.sep)?.pop()) {
           delete compilation.assets[file]
         }
       })

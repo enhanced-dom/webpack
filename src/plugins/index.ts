@@ -6,8 +6,8 @@ import TerserPlugin, { TerserPluginOptions } from 'terser-webpack-plugin'
 import { MinifyOptions } from 'terser'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import fs from 'fs'
-
 import HtmlInlineSourcePlugin from './HtmlWebpackInlineSourcePlugin'
+import { WebpackPluginInstance } from 'webpack'
 
 export const cssConfigFactory = ({
   filename = '[name]-[chunkhash].css',
@@ -39,7 +39,7 @@ export const bundleAnalyzerConfigFactory = (extraConfig: BundleAnalyzerPlugin.Op
   ]
 }
 
-export const htmlConfigFactory = ({ html = {}, embed }: { embed?: boolean; html?: Partial<HtmlWebpackPlugin.Options> } = {}) => {
+export const htmlConfigFactory = ({ html = {}, embed, outputPath = './dist' }: { embed?: boolean; html?: Partial<HtmlWebpackPlugin.Options>; outputPath?: string } = {}) => {
   const template = html.template ?? path.join(process.cwd(), 'template.html')
   const templateExists = fs.existsSync(template)
   const templateContent = `<!DOCTYPE html>
@@ -52,14 +52,13 @@ export const htmlConfigFactory = ({ html = {}, embed }: { embed?: boolean; html?
   </body>
   </html>`
   const favicon = html.favicon ? (path.isAbsolute(html.favicon) ? html.favicon : path.join(process.cwd(), html.favicon)) : undefined
-  const plugins = [
+  const plugins: WebpackPluginInstance[] = [
     new HtmlWebpackPlugin({
-      inject: true,
-      inlineSource: embed ? '.(js|css)$' : undefined,
+      inject: 'body',
       lang: 'en-US',
       ...(templateExists ? { template } : { templateContent }),
       ...html,
-      favicon: favicon && embed && fs.existsSync(favicon) ? `data:image/x-icon;base64, ${fs.readFileSync(favicon, 'base64')}` : favicon,
+      favicon
     }),
   ]
 

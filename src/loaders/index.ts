@@ -122,16 +122,10 @@ export const nullConfigFactory = ({ rules = [] as RegExp[] } = {}) => {
   }))
 }
 
-export const assetsConfigFactory = ({ embed = false, extraConfig = {}, pathPrefix = 'static' } = {}) => {
-  return embed
-    ? [{ loader: 'url-loader', options: { esModule: false, ...extraConfig } }]
-    : [{ loader: 'file-loader', options: { esModule: false, name: path.join(pathPrefix, '[name].[ext]'), ...extraConfig } }]
-}
-
-assetsConfigFactory.fontExtensions = ['ttf', 'eot', 'woff', 'woff2']
-assetsConfigFactory.imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'svg']
-assetsConfigFactory.extensions = (
-  extensions = [...assetsConfigFactory.imageExtensions, ...assetsConfigFactory.fontExtensions] as string[],
+export const fontExtensions = ['ttf', 'eot', 'woff', 'woff2']
+export const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'ico']
+export const assetExtensions = (
+  extensions = [...imageExtensions, ...fontExtensions] as string[],
 ) => new RegExp(`\\.(${extensions.join('|')})(\\?.*$|$)?$`)
 
 export const babelConfigFactory = ({ babel = undefined as any, cache = false as boolean | Record<string, any> } = {}) => {
