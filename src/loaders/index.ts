@@ -23,26 +23,27 @@ export const styleConfigFactory = ({
   if (raw) {
     loaders.push({
       loader: ExposeCssSourceLoader,
-    })
-  }
-
-  const finalStyleLoader = extract
-    ? {
-        loader: MiniCssExtractPlugin.loader,
-        options: {
-          publicPath: './',
-        },
+      options: {
+        attributes: {}
       }
-    : { loader: 'style-loader' }
-
-  loaders.push(finalStyleLoader)
+    })
+  } else if (extract) {
+    loaders.push({
+      loader: MiniCssExtractPlugin.loader,
+      options: {
+        publicPath: './',
+      }
+    })
+  } else {
+    loaders.push({ loader: 'style-loader' })
+  }
 
   if (typedStyles) {
     loaders.push({
       loader: 'dts-css-modules-loader',
       options: {
         namedExport: true,
-        banner: raw ? 'export const _source: string;' : undefined,
+        banner: raw ? 'export const _stylesheetName: string;' : undefined,
       },
     })
   }
@@ -53,23 +54,23 @@ export const styleConfigFactory = ({
       sourceMap,
       ...(modules || typedStyles
         ? {
-            esModule: true,
-            modules: {
-              localIdentName: modules?.localIdentName ?? '[local]_[hash:base64:5]',
-              getLocalIdent: (loaderContext: { resourcePath: string }, _: any, localName: string) => {
-                const { resourcePath } = loaderContext
-                const { mappings = [] } = modules ?? {}
-                const mapping = mappings.find(({ filter }) => resourcePath.includes(filter))
-                if (!mapping) {
-                  return undefined // this will trigger the default css-loader getLocalIdent function
-                }
-                return mapping.transform(localName)
-              },
-              exportLocalsConvention: 'camelCaseOnly',
-              namedExport: true,
+          esModule: true,
+          modules: {
+            localIdentName: modules?.localIdentName ?? '[local]_[hash:base64:5]',
+            getLocalIdent: (loaderContext: { resourcePath: string }, _: any, localName: string) => {
+              const { resourcePath } = loaderContext
+              const { mappings = [] } = modules ?? {}
+              const mapping = mappings.find(({ filter }) => resourcePath.includes(filter))
+              if (!mapping) {
+                return undefined // this will trigger the default css-loader getLocalIdent function
+              }
+              return mapping.transform(localName)
             },
-            sourceMap,
-          }
+            exportLocalsConvention: 'camelCaseOnly',
+            namedExport: true,
+          },
+          sourceMap,
+        }
         : { modules: false }),
     },
   }
@@ -128,23 +129,19 @@ export const assetExtensions = (
   extensions = [...imageExtensions, ...fontExtensions] as string[],
 ) => new RegExp(`\\.(${extensions.join('|')})(\\?.*$|$)?$`)
 
-export const babelConfigFactory = ({ babel = undefined as any, cache = false as boolean | Record<string, any> } = {}) => {
+export const babelConfigFactory = ({ babel = undefined as any }) => {
   const loaders = [{ loader: 'babel-loader', options: babel }]
-  if (cache) {
-    loaders.unshift({ loader: 'cache-loader', options: { cacheDirectory: '.babelcache', ...(cache as Record<string, any>) } })
-  }
   return loaders
 }
 
 export const markdownConfigFactory = ({
   babel,
-  cache,
   remark = [],
-}: { babel?: any; cache?: boolean | Record<string, any>; remark?: any[] } = {}) => {
+}: { babel?: any; remark?: any[] } = {}) => {
   const loaders = []
 
   if (babel) {
-    loaders.push(...babelConfigFactory({ babel, cache }))
+    loaders.push(...babelConfigFactory({ babel }))
     loaders.push({
       loader: '@mdx-js/loader',
       options: {
@@ -152,9 +149,6 @@ export const markdownConfigFactory = ({
       },
     })
   } else {
-    if (cache) {
-      loaders.push({ loader: 'cache-loader', options: { cacheDirectory: '.markdowncache', ...(cache as Record<string, any>) } })
-    }
     loaders.push(
       {
         loader: 'html-loader',

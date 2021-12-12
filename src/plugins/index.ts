@@ -71,12 +71,11 @@ export const htmlConfigFactory = ({ html = {}, embed, outputPath = './dist' }: {
 
 export const terserConfigFactory = ({
   enableSourcemaps = true,
-  cachePath = './.tersercache',
   terserOptions = {} as MinifyOptions,
 } = {}) => [
   new TerserPlugin({
     parallel: true,
-    cache: cachePath,
+    cache: true,
     sourceMap: enableSourcemaps,
     terserOptions: {
       ie8: false,
