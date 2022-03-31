@@ -1,8 +1,6 @@
-import HtmlWebpackPlugin from 'html-webpack-plugin'
-// @ts-ignore
+import HtmlWebpackPlugin, { Hooks } from 'html-webpack-plugin'
 import HtmlWebpackInlineSourcePlugin from 'html-webpack-inline-source-plugin'
 import { Compilation, Compiler } from 'webpack'
-import { Hooks } from 'html-webpack-plugin'
 import { AsyncSeriesWaterfallHook } from 'tapable'
 import fs from 'fs'
 import path from 'path'
@@ -35,20 +33,23 @@ HtmlWebpackInlineSourcePlugin.prototype.apply = function (compiler: Compiler) {
   self.faviconPath = undefined
 
   compiler.hooks.compilation.tap('html-webpack-inline-source-plugin', (compilation) => {
-    HtmlWebpackPlugin.getHooks(compilation).afterTemplateExecution.tapAsync('html-webpack-inline-source-plugin', (htmlPluginData, callback) => {
-      self.assetsRegExp = new RegExp('.(js|css)$')
-      const result = self.processTags(compilation, htmlPluginData) as typeof htmlPluginData
-      const favicon = htmlPluginData.plugin.options.favicon
-      if (!favicon || !fs.existsSync(favicon)) {
-        return callback(null, result)
-      }
-      const faviconTag = result.headTags.find(tag => tag.tagName === 'link' && tag.attributes.rel === 'icon')
-      if (faviconTag) {
-        self.faviconPath = faviconTag.attributes.href as string
-        faviconTag.attributes.href = `data:image/x-icon;base64, ${fs.readFileSync(favicon, 'base64')}`
-      }
-      callback(null, result)
-    })
+    HtmlWebpackPlugin.getHooks(compilation).afterTemplateExecution.tapAsync(
+      'html-webpack-inline-source-plugin',
+      (htmlPluginData, callback) => {
+        self.assetsRegExp = new RegExp('.(js|css)$')
+        const result = self.processTags(compilation, htmlPluginData) as typeof htmlPluginData
+        const favicon = htmlPluginData.plugin.options.favicon
+        if (!favicon || !fs.existsSync(favicon)) {
+          return callback(null, result)
+        }
+        const faviconTag = result.headTags.find((tag) => tag.tagName === 'link' && tag.attributes.rel === 'icon')
+        if (faviconTag) {
+          self.faviconPath = faviconTag.attributes.href as string
+          faviconTag.attributes.href = `data:image/x-icon;base64, ${fs.readFileSync(favicon, 'base64')}`
+        }
+        callback(null, result)
+      },
+    )
   })
 
   compiler.hooks.emit.tap('html-webpack-inline-source-plugin', (compilation) => {

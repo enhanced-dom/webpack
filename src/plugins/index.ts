@@ -2,12 +2,13 @@ import path from 'path'
 import { BundleAnalyzerPlugin } from 'webpack-bundle-analyzer'
 import CssMinimizerPlugin from 'css-minimizer-webpack-plugin'
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
-import TerserPlugin, { TerserPluginOptions } from 'terser-webpack-plugin'
+import TerserPlugin from 'terser-webpack-plugin'
 import { MinifyOptions } from 'terser'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import fs from 'fs'
-import HtmlInlineSourcePlugin from './HtmlWebpackInlineSourcePlugin'
 import { WebpackPluginInstance } from 'webpack'
+
+import HtmlInlineSourcePlugin from './HtmlWebpackInlineSourcePlugin'
 
 export const cssConfigFactory = ({
   filename = '[name]-[chunkhash].css',
@@ -39,7 +40,7 @@ export const bundleAnalyzerConfigFactory = (extraConfig: BundleAnalyzerPlugin.Op
   ]
 }
 
-export const htmlConfigFactory = ({ html = {}, embed, outputPath = './dist' }: { embed?: boolean; html?: Partial<HtmlWebpackPlugin.Options>; outputPath?: string } = {}) => {
+export const htmlConfigFactory = ({ html = {}, embed }: { embed?: boolean; html?: Partial<HtmlWebpackPlugin.Options> } = {}) => {
   const template = html.template ?? path.join(process.cwd(), 'template.html')
   const templateExists = fs.existsSync(template)
   const templateContent = `<!DOCTYPE html>
@@ -58,7 +59,7 @@ export const htmlConfigFactory = ({ html = {}, embed, outputPath = './dist' }: {
       lang: 'en-US',
       ...(templateExists ? { template } : { templateContent }),
       ...html,
-      favicon
+      favicon,
     }),
   ]
 
@@ -69,16 +70,12 @@ export const htmlConfigFactory = ({ html = {}, embed, outputPath = './dist' }: {
   return plugins
 }
 
-export const terserConfigFactory = ({
-  enableSourcemaps = true,
-  terserOptions = {} as MinifyOptions,
-} = {}) => [
+export const terserConfigFactory = ({ enableSourcemaps = true, terserOptions = {} as MinifyOptions } = {}) => [
   new TerserPlugin({
     parallel: true,
-    cache: true,
-    sourceMap: enableSourcemaps,
     terserOptions: {
       ie8: false,
+      sourceMap: enableSourcemaps,
       compress: {
         evaluate: false,
       },
@@ -90,5 +87,5 @@ export const terserConfigFactory = ({
       },
       ...terserOptions,
     },
-  } as TerserPluginOptions),
+  }),
 ]

@@ -1,8 +1,7 @@
-import { stringifyRequest } from 'loader-utils'
+import styleLoader from 'style-loader'
+import { uniqueId } from 'lodash'
 
-const loader = function () { }
-const styleLoader = require('style-loader')
-const uniqueId = require('lodash').uniqueId
+const loader = function () {}
 
 loader.pitch = function pitch(remainingRequest: string) {
   if (this.cacheable) {

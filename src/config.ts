@@ -3,5 +3,5 @@ import * as plugins from './plugins'
 
 export = {
   loaders,
-  plugins
+  plugins,
 }

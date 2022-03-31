@@ -1,12 +1,8 @@
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
-import path from 'path'
 import createResolver from 'postcss-import-webpack-resolver'
 const ExposeCssSourceLoader = require.resolve('./ExposeCssSourceLoader')
-// @ts-ignore
 import codeImport from 'remark-code-import'
-// @ts-ignore
 import imageUnwrap from 'remark-unwrap-images'
-// @ts-ignore
 import imageImport from 'remark-embed-images'
 
 export const styleConfigFactory = ({
@@ -24,15 +20,15 @@ export const styleConfigFactory = ({
     loaders.push({
       loader: ExposeCssSourceLoader,
       options: {
-        attributes: {}
-      }
+        attributes: {},
+      },
     })
   } else if (extract) {
     loaders.push({
       loader: MiniCssExtractPlugin.loader,
       options: {
         publicPath: './',
-      }
+      },
     })
   } else {
     loaders.push({ loader: 'style-loader' })
@@ -54,23 +50,23 @@ export const styleConfigFactory = ({
       sourceMap,
       ...(modules || typedStyles
         ? {
-          esModule: true,
-          modules: {
-            localIdentName: modules?.localIdentName ?? '[local]_[hash:base64:5]',
-            getLocalIdent: (loaderContext: { resourcePath: string }, _: any, localName: string) => {
-              const { resourcePath } = loaderContext
-              const { mappings = [] } = modules ?? {}
-              const mapping = mappings.find(({ filter }) => resourcePath.includes(filter))
-              if (!mapping) {
-                return undefined // this will trigger the default css-loader getLocalIdent function
-              }
-              return mapping.transform(localName)
+            esModule: true,
+            modules: {
+              localIdentName: modules?.localIdentName ?? '[local]_[hash:base64:5]',
+              getLocalIdent: (loaderContext: { resourcePath: string }, _: any, localName: string) => {
+                const { resourcePath } = loaderContext
+                const { mappings = [] } = modules ?? {}
+                const mapping = mappings.find(({ filter }) => resourcePath.includes(filter))
+                if (!mapping) {
+                  return undefined // this will trigger the default css-loader getLocalIdent function
+                }
+                return mapping.transform(localName)
+              },
+              exportLocalsConvention: 'camelCaseOnly',
+              namedExport: true,
             },
-            exportLocalsConvention: 'camelCaseOnly',
-            namedExport: true,
-          },
-          sourceMap,
-        }
+            sourceMap,
+          }
         : { modules: false }),
     },
   }
@@ -125,19 +121,15 @@ export const nullConfigFactory = ({ rules = [] as RegExp[] } = {}) => {
 
 export const fontExtensions = ['ttf', 'eot', 'woff', 'woff2']
 export const imageExtensions = ['png', 'jpg', 'jpeg', 'gif', 'svg', 'ico']
-export const assetExtensions = (
-  extensions = [...imageExtensions, ...fontExtensions] as string[],
-) => new RegExp(`\\.(${extensions.join('|')})(\\?.*$|$)?$`)
+export const assetExtensions = (extensions = [...imageExtensions, ...fontExtensions] as string[]) =>
+  new RegExp(`\\.(${extensions.join('|')})(\\?.*$|$)?$`)
 
 export const babelConfigFactory = ({ babel = undefined as any }) => {
   const loaders = [{ loader: 'babel-loader', options: babel }]
   return loaders
 }
 
-export const markdownConfigFactory = ({
-  babel,
-  remark = [],
-}: { babel?: any; remark?: any[] } = {}) => {
+export const markdownConfigFactory = ({ babel, remark = [] }: { babel?: any; remark?: any[] } = {}) => {
   const loaders = []
 
   if (babel) {
