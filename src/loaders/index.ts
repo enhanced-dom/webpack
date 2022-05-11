@@ -1,5 +1,6 @@
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import createResolver from 'postcss-import-webpack-resolver'
+// eslint-disable-next-line @typescript-eslint/naming-convention
 const ExposeCssSourceLoader = require.resolve('./ExposeCssSourceLoader')
 import codeImport from 'remark-code-import'
 import imageUnwrap from 'remark-unwrap-images'
@@ -10,7 +11,9 @@ export const styleConfigFactory = ({
   extract = false,
   sourceMap = false,
   typedStyles = false,
-  modules = undefined as { localIdentName: string; mappings: { filter: string; transform: (p: string) => string }[] },
+  modules = undefined as
+    | { localIdentName?: string; mappings?: { filter: string; transform: (p: string) => string }[] }
+    | (boolean & { localIdentName?: never; mappings?: never }),
   parser = undefined as 'postcss' | 'postcss-scss',
   aliases = {} as Record<string, string>,
 } = {}) => {
@@ -55,7 +58,7 @@ export const styleConfigFactory = ({
               localIdentName: modules?.localIdentName ?? '[local]_[hash:base64:5]',
               getLocalIdent: (loaderContext: { resourcePath: string }, _: any, localName: string) => {
                 const { resourcePath } = loaderContext
-                const { mappings = [] } = modules ?? {}
+                const mappings = modules?.mappings ?? []
                 const mapping = mappings.find(({ filter }) => resourcePath.includes(filter))
                 if (!mapping) {
                   return undefined // this will trigger the default css-loader getLocalIdent function

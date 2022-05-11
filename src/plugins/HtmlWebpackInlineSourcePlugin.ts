@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
 import HtmlWebpackPlugin, { Hooks } from 'html-webpack-plugin'
 import HtmlWebpackInlineSourcePlugin from 'html-webpack-inline-source-plugin'
 import { Compilation, Compiler } from 'webpack'

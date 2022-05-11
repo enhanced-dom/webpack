@@ -1,6 +1,7 @@
 import styleLoader from 'style-loader'
 import { uniqueId } from 'lodash'
 
+// eslint-disable-next-line @typescript-eslint/no-empty-function
 const loader = function () {}
 
 loader.pitch = function pitch(remainingRequest: string) {

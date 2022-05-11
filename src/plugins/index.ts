@@ -71,6 +71,7 @@ export const htmlConfigFactory = ({ html = {}, embed }: { embed?: boolean; html?
 }
 
 export const terserConfigFactory = ({ enableSourcemaps = true, terserOptions = {} as MinifyOptions } = {}) => [
+  /* eslint-disable @typescript-eslint/naming-convention */
   new TerserPlugin({
     parallel: true,
     terserOptions: {
