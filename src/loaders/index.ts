@@ -1,6 +1,5 @@
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import createResolver from 'postcss-import-webpack-resolver'
-// eslint-disable-next-line @typescript-eslint/naming-convention
 const ExposeCssSourceLoader = require.resolve('./ExposeCssSourceLoader')
 import codeImport from 'remark-code-import'
 import imageUnwrap from 'remark-unwrap-images'
