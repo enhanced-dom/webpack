@@ -1,6 +1,6 @@
 {
   "name": "@enhanced-dom/webpack",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Helpers for webpack configuration",
   "keywords": [],
   "repository": "https://github.com/enhanced-dom/webpack.git",
@@ -31,6 +31,7 @@
     "html-webpack-plugin": "^5.3.1",
     "ignore-emit-webpack-plugin": "^2.0.6",
     "markdown-loader": "^8.0.0",
+    "memory-fs": "^0.5.0",
     "mini-css-extract-plugin": "^2.3.0",
     "null-loader": "^4.0.1",
     "css-minimizer-webpack-plugin": "^3.0.2",
@@ -62,6 +63,7 @@
     "@enhanced-dom/lint": "^0.0.7",
     "@types/html-webpack-plugin": "^3.2.5",
     "@types/loader-utils": "^2.0.2",
+    "@types/memory-fs": "^0.3.3",
     "@types/mini-css-extract-plugin": "^1.4.3",
     "@types/optimize-css-assets-webpack-plugin": "^5.0.3",
     "@types/terser-webpack-plugin": "^5.2.0",
