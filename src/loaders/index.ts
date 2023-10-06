@@ -131,7 +131,12 @@ export const babelConfigFactory = ({ babel = undefined as any }) => {
   return loaders
 }
 
-export const markdownConfigFactory = ({ babel, remark = [] }: { babel?: any; remark?: any[] } = {}) => {
+export const markdownConfigFactory = ({
+  babel,
+  remark = [],
+  rehype = [],
+  useProvider = false,
+}: { babel?: any; remark?: any[]; rehype?: any[]; useProvider?: boolean } = {}) => {
   const loaders = []
 
   if (babel) {
@@ -140,6 +145,8 @@ export const markdownConfigFactory = ({ babel, remark = [] }: { babel?: any; rem
       loader: '@mdx-js/loader',
       options: {
         remarkPlugins: [codeImport, imageImport, imageUnwrap, ...remark],
+        rehypePlugins: rehype,
+        providerImportSource: useProvider ? '@mdx-js/react' : undefined,
       },
     })
   } else {
