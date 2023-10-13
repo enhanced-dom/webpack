@@ -70,10 +70,11 @@ export const htmlConfigFactory = ({ html = {}, embed }: { embed?: boolean; html?
   return plugins
 }
 
-export const terserConfigFactory = ({ enableSourcemaps = true, terserOptions = {} as MinifyOptions } = {}) => [
+export const terserConfigFactory = ({ enableSourcemaps = true, terserOptions = {} as MinifyOptions, embed = false } = {}) => [
   /* eslint-disable @typescript-eslint/naming-convention */
   new TerserPlugin({
     parallel: true,
+    extractComments: !embed,
     terserOptions: {
       ie8: false,
       sourceMap: enableSourcemaps,
