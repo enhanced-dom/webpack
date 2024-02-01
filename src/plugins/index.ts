@@ -6,7 +6,7 @@ import TerserPlugin from 'terser-webpack-plugin'
 import { MinifyOptions } from 'terser'
 import HtmlWebpackPlugin from 'html-webpack-plugin'
 import fs from 'fs'
-import { WebpackPluginInstance } from 'webpack'
+import { type WebpackPluginInstance } from 'webpack'
 
 import HtmlInlineSourcePlugin from './HtmlWebpackInlineSourcePlugin'
 

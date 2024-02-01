@@ -1,7 +1,7 @@
-import webpack from 'webpack'
+import { type Compiler, type Configuration, webpack } from 'webpack'
 import MemoryFS from 'memory-fs'
 
-export const proxyFilesystem = (originalFilesystem: webpack.Compiler['inputFileSystem']) => {
+export const proxyFilesystem = (originalFilesystem: Compiler['inputFileSystem']) => {
   // Inspired by: https://stackoverflow.com/questions/38779924/compiling-webpack-in-memory-but-resolving-to-node-modules-on-disk
   const memFs = new MemoryFS()
   const statOrig = memFs.stat.bind(memFs)
@@ -26,16 +26,16 @@ export const proxyFilesystem = (originalFilesystem: webpack.Compiler['inputFileS
   return memFs
 }
 
-export const patchCompilerFileSystem = (originalCompiler: webpack.Compiler, allowProxy = true) => {
+export const patchCompilerFileSystem = (originalCompiler: Compiler, allowProxy = true) => {
   originalCompiler.inputFileSystem = allowProxy ? proxyFilesystem(originalCompiler.inputFileSystem) : new MemoryFS()
   originalCompiler.outputFileSystem = new MemoryFS()
 
-  return originalCompiler as Omit<webpack.Compiler, 'inputFileSystem' | 'outputFileSystem'> & {
+  return originalCompiler as Omit<Compiler, 'inputFileSystem' | 'outputFileSystem'> & {
     inputFileSystem: MemoryFS
     outputFileSystem: MemoryFS
   }
 }
 
-export const getInMemoryCompiler = (webpackConfig: webpack.Configuration, allowProxy = true) => {
+export const getInMemoryCompiler = (webpackConfig: Configuration, allowProxy = true) => {
   return patchCompilerFileSystem(webpack(webpackConfig), allowProxy)
 }

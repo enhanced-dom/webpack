@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 import HtmlWebpackPlugin, { Hooks } from 'html-webpack-plugin'
 import HtmlWebpackInlineSourcePlugin from 'html-webpack-inline-source-plugin'
-import { Compilation, Compiler } from 'webpack'
+import { type Compilation, type Compiler } from 'webpack'
 import { AsyncSeriesWaterfallHook } from 'tapable'
 import fs from 'fs'
 import path from 'path'
 
-type AsyncSeriesWaterfallHookData<T> = T extends AsyncSeriesWaterfallHook<infer R> ? R : never
+type AsyncSeriesWaterfallHookDataType<T> = T extends AsyncSeriesWaterfallHook<infer R> ? R : never
 
 HtmlWebpackInlineSourcePlugin.prototype.processTags = function (
   compilation: Compilation,
-  pluginData: AsyncSeriesWaterfallHookData<Hooks['afterTemplateExecution']>,
+  pluginData: AsyncSeriesWaterfallHookDataType<Hooks['afterTemplateExecution']>,
 ) {
   const self = this
 
@@ -64,4 +64,4 @@ HtmlWebpackInlineSourcePlugin.prototype.apply = function (compiler: Compiler) {
   })
 }
 
-export = HtmlWebpackInlineSourcePlugin
+export default HtmlWebpackInlineSourcePlugin

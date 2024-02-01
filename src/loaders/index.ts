@@ -97,7 +97,6 @@ export const styleConfigFactory = ({
               modules: ['./node_modules', 'node_modules'],
             },
           ],
-          'postcss-advanced-variables',
           'postcss-nested',
           'autoprefixer',
           // ['postcss-preset-env', {
