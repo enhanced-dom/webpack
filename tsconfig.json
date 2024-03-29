@@ -8,12 +8,11 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "outDir": "dist",
-    "preserveConstEnums" : true,
+    "preserveConstEnums": true,
     "sourceMap": true,
     "sourceRoot": "./",
-    "inlineSources": true
+    "inlineSources": true,
+    "types": ["json-schema"],
   },
-  "include": [
-    "src/**/*.ts",
-  ]
+  "include": ["src/**/*.ts"],
 }

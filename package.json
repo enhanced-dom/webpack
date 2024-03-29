@@ -1,6 +1,6 @@
 {
   "name": "@enhanced-dom/webpack",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Helpers for webpack configuration",
   "keywords": [],
   "repository": "https://github.com/enhanced-dom/webpack.git",
@@ -16,14 +16,11 @@
     "lint": "eslint --fix --config eslint.config.js src"
   },
   "dependencies": {
-    "@enhanced-dom/build": "^0.1.0",
-    "@enhanced-dom/css": "^0.1.0",
+    "@enhanced-dom/build": "~0.1.0",
     "@mdx-js/loader": "^3.0.0",
-    "autoprefixer": "^10.4.17",
     "babel-loader": "^9.1.3",
     "css-loader": "^6.10.0",
     "cssnano-preset-advanced": "^6.0.3",
-    "dts-css-modules-loader": "^2.0.1",
     "html-inline-css-webpack-plugin": "^1.11.2",
     "html-inline-script-webpack-plugin": "^3.2.1",
     "html-loader": "^5.0.0",
@@ -36,10 +33,12 @@
     "null-loader": "^4.0.1",
     "css-minimizer-webpack-plugin": "^6.0.0",
     "postcss": "^8.4.33",
+    "postcss-discard-comments": "^6.0.2",
     "postcss-import": "^16.0.0",
     "postcss-import-webpack-resolver": "^1.0.1",
     "postcss-loader": "^8.1.0",
     "postcss-nested": "^6.0.1",
+    "postcss-normalize-whitespace": "^6.0.2",
     "postcss-preset-env": "^9.3.0",
     "postcss-scss": "^4.0.9",
     "module-from-string": "^3.3.0",
@@ -58,7 +57,7 @@
     "serve": "^14.2.1"
   },
   "devDependencies": {
-    "@enhanced-dom/lint": "^0.1.1",
+    "@enhanced-dom/lint": "~0.1.4",
     "@types/html-webpack-plugin": "^3.2.9",
     "@types/loader-utils": "^2.0.6",
     "@types/memory-fs": "^0.3.7",

@@ -1,12 +1,12 @@
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import createResolver from 'postcss-import-webpack-resolver'
-const ExposeCssSourceLoader = require.resolve('./ExposeCssSourceLoader')
+const WebcomponentStyleLoader = require.resolve('./WebcomponentStyleLoader')
 import codeImport from 'remark-code-import'
 import imageUnwrap from 'remark-unwrap-images'
 import imageImport from 'remark-embed-images'
 
 export const styleConfigFactory = ({
-  raw = false as boolean,
+  raw = false,
   extract = false,
   sourceMap = false,
   typedStyles = false,
@@ -20,30 +20,35 @@ export const styleConfigFactory = ({
 
   if (raw) {
     loaders.push({
-      loader: ExposeCssSourceLoader,
+      loader: WebcomponentStyleLoader,
       options: {
-        attributes: {},
-      },
-    })
-  } else if (extract) {
-    loaders.push({
-      loader: MiniCssExtractPlugin.loader,
-      options: {
-        publicPath: './',
+        raw: true,
+        emit: extract,
+        typings: typedStyles,
       },
     })
   } else {
-    loaders.push({ loader: 'style-loader' })
-  }
+    if (extract) {
+      loaders.push({
+        loader: MiniCssExtractPlugin.loader,
+        options: {
+          publicPath: './',
+        },
+      })
+    } else {
+      loaders.push({ loader: 'style-loader' })
+    }
 
-  if (typedStyles) {
-    loaders.push({
-      loader: 'dts-css-modules-loader',
-      options: {
-        namedExport: true,
-        banner: raw ? 'export const _stylesheetName: string;' : undefined,
-      },
-    })
+    if (typedStyles) {
+      loaders.push({
+        loader: WebcomponentStyleLoader,
+        options: {
+          raw: false,
+          emit: false,
+          typings: true,
+        },
+      })
+    }
   }
 
   const cssLoader = {
@@ -88,6 +93,8 @@ export const styleConfigFactory = ({
       postcssOptions: {
         parser,
         plugins: [
+          'postcss-normalize-whitespace',
+          'postcss-discard-comments',
           [
             'postcss-import',
             {
@@ -98,10 +105,13 @@ export const styleConfigFactory = ({
             },
           ],
           'postcss-nested',
-          'autoprefixer',
-          // ['postcss-preset-env', {
-          //   browsers: ['last 2 versions']
-          // }]
+          // 'autoprefixer',
+          [
+            'postcss-preset-env',
+            {
+              stage: 3,
+            },
+          ],
         ],
       },
     },

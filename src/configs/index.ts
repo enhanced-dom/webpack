@@ -1,25 +1,29 @@
 import IgnoreEmitWebpackPlugin from 'ignore-emit-webpack-plugin'
+import path from 'path'
 
 import { styleConfigFactory } from '../loaders'
 
-export const typedStylesConfigFactory = ({ raw, filesPaths }: { raw?: boolean; filesPaths: string[] }) => {
+export const typedStylesConfigFactory = ({ raw, filePaths, outputPath }: { raw?: boolean; filePaths: string[]; outputPath?: string }) => {
+  const fileRegexes = filePaths.map(
+    (filePath) => new RegExp(`^((?!${path.basename(filePath).replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')}).)*$`),
+  )
   return {
-    mode: 'production',
-    entry: { bundle: filesPaths },
+    mode: 'development',
+    entry: { bundle: filePaths },
     devtool: false,
-    watch: true,
+    output: outputPath ? { path: outputPath } : undefined,
     module: {
       rules: [
         {
           test: /\.(pcss|css)$/,
-          use: styleConfigFactory({ raw, typedStyles: true, parser: 'postcss', modules: true }),
+          use: styleConfigFactory({ raw, typedStyles: true, parser: 'postcss', extract: !!outputPath }),
         },
         {
           test: /\.(scss|sass)$/,
-          use: styleConfigFactory({ raw, typedStyles: true, parser: 'postcss-scss', modules: true }),
+          use: styleConfigFactory({ raw, typedStyles: true, parser: 'postcss-scss', extract: !!outputPath }),
         },
       ],
     },
-    plugins: [new IgnoreEmitWebpackPlugin(/.+/)],
+    plugins: [new IgnoreEmitWebpackPlugin(fileRegexes)],
   }
 }
