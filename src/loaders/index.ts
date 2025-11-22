@@ -2,7 +2,7 @@ import MiniCssExtractPlugin from 'mini-css-extract-plugin'
 import createResolver from 'postcss-import-webpack-resolver'
 const WebcomponentStyleLoader = require.resolve('./WebcomponentStyleLoader')
 import codeImport from 'remark-code-import'
-import imageUnwrap from 'remark-unwrap-images'
+import imageUnwrap from 'rehype-unwrap-images'
 import imageImport from 'remark-embed-images'
 
 export const styleConfigFactory = ({

@@ -27,13 +27,14 @@ export const proxyFilesystem = (originalFilesystem: Compiler['inputFileSystem'])
 }
 
 export const patchCompilerFileSystem = (originalCompiler: Compiler, allowProxy = true) => {
-  originalCompiler.inputFileSystem = allowProxy ? proxyFilesystem(originalCompiler.inputFileSystem) : new MemoryFS()
-  originalCompiler.outputFileSystem = new MemoryFS()
-
-  return originalCompiler as Omit<Compiler, 'inputFileSystem' | 'outputFileSystem'> & {
+  const transformedCompiler = originalCompiler as unknown as Omit<Compiler, 'inputFileSystem' | 'outputFileSystem'> & {
     inputFileSystem: MemoryFS
     outputFileSystem: MemoryFS
   }
+  transformedCompiler.inputFileSystem = allowProxy ? proxyFilesystem(originalCompiler.inputFileSystem) : new MemoryFS()
+  transformedCompiler.outputFileSystem = new MemoryFS()
+
+  return transformedCompiler
 }
 
 export const getInMemoryCompiler = (webpackConfig: Configuration, allowProxy = true) => {
