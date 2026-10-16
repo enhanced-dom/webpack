@@ -1,9 +1,20 @@
 import MiniCssExtractPlugin from 'mini-css-extract-plugin'
-import createResolver from 'postcss-import-webpack-resolver'
-const WebcomponentStyleLoader = require.resolve('./WebcomponentStyleLoader')
+import enhancedResolve from 'enhanced-resolve'
 import codeImport from 'remark-code-import'
 import imageUnwrap from 'rehype-unwrap-images'
 import imageImport from 'remark-embed-images'
+
+// Resolving `./WebcomponentStyleLoader`'s absolute path needs `require.resolve` (extensionless, so it
+// finds the `.ts` source under ts-jest and the compiled `.js` in the built output alike) - delegated
+// to a plain `.cjs` sibling since this file's own build output has no `require` at all (see that
+// file for why).
+import WebcomponentStyleLoader from './resolveWebcomponentStyleLoaderPath.cjs'
+
+// `enhanced-resolve`'s named exports aren't statically analyzable by Node's CJS/ESM interop
+// (cjs-module-lexer) at runtime, so `import { create } from 'enhanced-resolve'` throws
+// `SyntaxError: Named export 'create' not found` for real ESM consumers - destructuring off the
+// default import is the Node-recommended workaround.
+const { create: createEnhancedResolver } = enhancedResolve
 
 export const styleConfigFactory = ({
   raw = false,
@@ -12,8 +23,9 @@ export const styleConfigFactory = ({
   typedStyles = false,
   modules = undefined as
     | { localIdentName?: string; mappings?: { filter: string; transform: (p: string) => string }[] }
-    | (boolean & { localIdentName?: never; mappings?: never }),
-  parser = undefined as 'postcss' | 'postcss-scss',
+    | (boolean & { localIdentName?: never; mappings?: never })
+    | undefined,
+  parser = undefined as 'postcss' | 'postcss-scss' | undefined,
   aliases = {} as Record<string, string>,
 } = {}) => {
   const loaders = []
@@ -86,6 +98,12 @@ export const styleConfigFactory = ({
 
   loaders.push(resolveUrlLoader)
 
+  const resolveCssImport = createEnhancedResolver.sync({
+    extensions: ['.css'],
+    modules: ['node_modules'],
+    alias: aliases,
+  })
+
   const postcssLoader = {
     loader: 'postcss-loader',
     options: {
@@ -98,9 +116,7 @@ export const styleConfigFactory = ({
           [
             'postcss-import',
             {
-              resolve: createResolver({
-                alias: aliases,
-              }),
+              resolve: (id: string, basedir: string) => resolveCssImport(basedir, id),
               modules: ['./node_modules', 'node_modules'],
             },
           ],

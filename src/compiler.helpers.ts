@@ -1,4 +1,4 @@
-import { type Compiler, type Configuration, webpack } from 'webpack'
+import webpack, { type Compiler, type Configuration } from 'webpack'
 import MemoryFS from 'memory-fs'
 
 export const proxyFilesystem = (originalFilesystem: Compiler['inputFileSystem']) => {
@@ -6,18 +6,18 @@ export const proxyFilesystem = (originalFilesystem: Compiler['inputFileSystem'])
   const memFs = new MemoryFS()
   const statOrig = memFs.stat.bind(memFs)
   const readFileOrig = memFs.readFile.bind(memFs)
-  memFs.stat = (filePath, cb) => {
-    statOrig(filePath, (err: Error, result: any) => {
+  memFs.stat = (filePath: string, cb: (err: Error | null, result?: any) => void) => {
+    statOrig(filePath, (err: Error | null, result: any) => {
       if (err) {
-        return originalFilesystem.stat(filePath, cb)
+        return originalFilesystem!.stat(filePath, cb)
       }
       return cb(err, result)
     })
   }
-  memFs.readFile = (filePath, cb) => {
-    readFileOrig(filePath, (err: Error, result: any) => {
+  memFs.readFile = (filePath: string, cb: (err: Error | null, result?: any) => void) => {
+    readFileOrig(filePath, (err: Error | null, result: any) => {
       if (err) {
-        return originalFilesystem.readFile(filePath, cb)
+        return originalFilesystem!.readFile(filePath, cb)
       }
       return cb(err, result)
     })

@@ -1,0 +1,2 @@
+declare const webcomponentStyleLoaderPath: string
+export default webcomponentStyleLoaderPath
